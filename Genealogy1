@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Family Tree with Photos</title>
+    <style>
+      ul.tree,
+      ul.tree ul {
+        list-style-type: none;
+        position: relative;
+      }
+
+      ul.tree ul {
+        margin-left: 20px;
+        display: none;
+      }
+
+      ul.tree li {
+        margin: 0;
+        padding: 10px 5px;
+        position: relative;
+        cursor: pointer;
+      }
+
+      ul.tree li::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -10px;
+        border-left: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+        width: 10px;
+        height: 20px;
+      }
+
+      ul.tree li::after {
+        position: absolute;
+        content: "";
+        top: 20px;
+        left: -10px;
+        border-left: 1px solid #ccc;
+        height: 100%;
+      }
+
+      ul.tree li:last-child::after {
+        display: none;
+      }
+
+      .toggle::before {
+        content: "▶";
+        display: inline-block;
+        margin-right: 5px;
+      }
+
+      .expanded::before {
+        content: "▼";
+      }
+
+      .member {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .member img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Family Tree</h2>
+    <ul class="tree">
+      <li class="toggle">
+        <div class="member">
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLie640Xwav1OZgnI0RpG2-EUJggWQtWXY3A&s" alt="Grandparent1" />
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTUuPclbw4zKmlVbisrHjCTYtihgMFo4TEpdg&s" alt="Grandparent2" />
+          <span>Grandparents</span>
+        </div>
+        <ul>
+          <li class="toggle">
+            <div class="member">
+              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQKywOeOGsm-Bd5-LXY7uo18cd4UPo-kXt4Yg&s" alt="Parent 1" />
+              <span>Parent 1</span>
+            </div>
+            <ul>
+              <li>
+                <div class="member">
+                  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQKywOeOGsm-Bd5-LXY7uo18cd4UPo-kXt4Yg&s" alt="Child 1" />
+                  <span>Child 1</span>
+                </div>
+              </li>
+              <li>
+                <div class="member">
+                  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRa2WZvcBIO-3ohomzTzxmJyz9HCM6EM7n7iQ&s" alt="Child 2" />
+                  <span>Child 2</span>
+                </div>
+              </li>
+            </ul>
+          </li>
+          <li class="toggle">
+            <div class="member">
+              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQaMILrMk5kBTo5ICLjh1oC3gqdLe6I3rAm-A&s" alt="Parent 2" />
+              <span>Parent 2</span>
+            </div>
+            <ul>
+              <li>
+                <div class="member">
+                  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQaMILrMk5kBTo5ICLjh1oC3gqdLe6I3rAm-A&s" alt="Child 3" />
+                  <span>Child 3</span>
+                </div>
+              </li>
+            </ul>
+          </li>
+           <li class="toggle">
+            <div class="member">
+              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQaMILrMk5kBTo5ICLjh1oC3gqdLe6I3rAm-A&s" alt="Parent 3" />
+              <span>Parent 3</span>
+            </div>
+            <ul>
+              <li>
+                <div class="member">
+                  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQaMILrMk5kBTo5ICLjh1oC3gqdLe6I3rAm-A&s" alt="Child 4" />
+                  <span>Child 4</span>
+                </div>
+                <div class="member">
+                  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQaMILrMk5kBTo5ICLjh1oC3gqdLe6I3rAm-A&s" alt="Child 5" />
+                  <span>Child 5</span>
+                </div>
+                <div class="member">
+                  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQaMILrMk5kBTo5ICLjh1oC3gqdLe6I3rAm-A&s" alt="Child 5" />
+                  <span>Child 5</span>
+                </div>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+
+    <script>
+      document.querySelectorAll(".toggle").forEach(function (node) {
+        node.addEventListener("click", function (e) {
+          e.stopPropagation()
+          const childUl = this.querySelector("ul")
+          if (childUl) {
+            childUl.style.display =
+              childUl.style.display === "block" ? "none" : "block"
+            this.classList.toggle("expanded")
+          }
+        })
+      })
+    </script>
+  </body>
+</html>
