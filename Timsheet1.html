@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Employee Timesheet Tracker</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f5f4;
+      --bg-tertiary: #f0ede8;
+      --text-primary: #1a1a18;
+      --text-secondary: #5f5e5a;
+      --border: #e0ddd8;
+      --border-strong: #c8c5bf;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --green-bg: #EAF3DE;
+      --green-text: #3B6D11;
+      --green-border: #C0DD97;
+      --green-dark: #27500A;
+      --red-bg: #FCEBEB;
+      --red-text: #A32D2D;
+      --red-border: #F7C1C1;
+      --red-dark: #791F1F;
+      --blue-bg: #E6F1FB;
+      --blue-text: #0C447C;
+      --amber-bg: #FAEEDA;
+      --amber-text: #854F0B;
+      --amber-border: #FAC775;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1e1e1c;
+        --bg-secondary: #2a2a28;
+        --bg-tertiary: #141412;
+        --text-primary: #f0ede8;
+        --text-secondary: #a0a09a;
+        --border: #3a3a36;
+        --border-strong: #505050;
+      }
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg-tertiary); color: var(--text-primary); min-height: 100vh; }
+    .app { max-width: 720px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+    h1 { font-size: 22px; font-weight: 500; color: var(--text-primary); }
+    .subtitle { font-size: 14px; color: var(--text-secondary); margin-top: 4px; margin-bottom: 2rem; }
+    .card { background: var(--bg-primary); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1.25rem; }
+    .card-title { font-size: 11px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .field { margin-bottom: 1rem; }
+    .field label { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 5px; }
+    input, select, textarea {
+      width: 100%; padding: 8px 10px; font-size: 14px;
+      background: var(--bg-primary); color: var(--text-primary);
+      border: 0.5px solid var(--border-strong); border-radius: var(--radius-md);
+      outline: none; font-family: inherit;
+    }
+    input:focus, select:focus { border-color: #378ADD; box-shadow: 0 0 0 3px rgba(55,138,221,0.15); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 480px) { .row { grid-template-columns: 1fr; } }
+    .btn-row { display: flex; gap: 10px; margin-top: 1.25rem; }
+    .btn { flex: 1; padding: 10px 16px; border-radius: var(--radius-md); font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.15s; border: 0.5px solid var(--border-strong); background: var(--bg-primary); color: var(--text-primary); font-family: inherit; }
+    .btn:hover { background: var(--bg-secondary); }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: var(--green-text); color: var(--green-bg); border-color: var(--green-text); }
+    .btn-primary:hover { background: var(--green-dark); border-color: var(--green-dark); }
+    .btn-danger { background: var(--red-text); color: var(--red-bg); border-color: var(--red-text); }
+    .btn-danger:hover { background: var(--red-dark); border-color: var(--red-dark); }
+    .live-clock { font-size: 32px; font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: -0.5px; }
+    .live-date { font-size: 13px; color: var(--text-secondary); margin-top: 3px; }
+    .status-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; padding: 5px 12px; border-radius: var(--radius-md); margin-top: 14px; }
+    .status-idle { background: var(--bg-secondary); color: var(--text-secondary); border: 0.5px solid var(--border); }
+    .status-active { background: var(--green-bg); color: var(--green-text); border: 0.5px solid var(--green-border); }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+    .dot-pulse { animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .session-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+    .session-stat { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 10px 12px; }
+    .session-stat .s-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+    .session-stat .s-val { font-size: 16px; font-weight: 500; font-variant-numeric: tabular-nums; }
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.25rem; }
+    .stat-card { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 12px 14px; }
+    .stat-card .sc-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 5px; }
+    .stat-card .sc-val { font-size: 24px; font-weight: 500; font-variant-numeric: tabular-nums; }
+    .alert { font-size: 13px; padding: 10px 12px; border-radius: var(--radius-md); margin-top: 10px; display: none; }
+    .alert-error { background: var(--red-bg); color: var(--red-text); border: 0.5px solid var(--red-border); }
+    .alert-warn { background: var(--amber-bg); color: var(--amber-text); border: 0.5px solid var(--amber-border); }
+    .note-char { font-size: 12px; color: var(--text-secondary); text-align: right; margin-top: 4px; }
+    .filter-row { display: flex; gap: 8px; align-items: center; margin-bottom: 1rem; }
+    .filter-row label { font-size: 13px; color: var(--text-secondary); white-space: nowrap; }
+    .log-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .log-table th { text-align: left; padding: 8px 10px; font-size: 11px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 0.5px solid var(--border); }
+    .log-table td { padding: 10px; border-bottom: 0.5px solid var(--border); color: var(--text-primary); }
+    .log-table tr:last-child td { border-bottom: none; }
+    .log-table tr:hover td { background: var(--bg-secondary); }
+    .hrs-pill { display: inline-block; background: var(--blue-bg); color: var(--blue-text); font-size: 12px; font-weight: 500; padding: 2px 8px; border-radius: var(--radius-md); }
+    .empty-state { text-align: center; padding: 2.5rem; color: var(--text-secondary); font-size: 14px; }
+    .export-row { text-align: right; margin-top: 12px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+  </style>
+</head>
+<body>
+<div class="app">
+  <h2 class="sr-only">Employee timesheet tracker</h2>
+  <h1>Timesheet tracker</h1>
+  <p class="subtitle">Employees clock in and out — all sessions are saved automatically.</p>
+
+  <div class="card">
+    <div class="card-title">Clock</div>
+    <div class="live-clock" id="liveClock">00:00:00</div>
+    <div class="live-date" id="liveDate"></div>
+    <div id="statusBadge" class="status-badge status-idle">
+      <span class="dot"></span> Not clocked in
+    </div>
+    <div class="session-grid" id="sessionInfo" style="display:none;">
+      <div class="session-stat"><div class="s-label">Clocked in at</div><div class="s-val" id="sinceTime">—</div></div>
+      <div class="session-stat"><div class="s-label">Duration so far</div><div class="s-val" id="durationNow">0h 00m</div></div>
+    </div>
+  </div>
+
+  <div class="card" id="clockInCard">
+    <div class="card-title">Clock in</div>
+    <div class="row">
+      <div class="field"><label>First name</label><input type="text" id="firstName" placeholder="e.g. Jane" autocomplete="off" /></div>
+      <div class="field"><label>Last name</label><input type="text" id="lastName" placeholder="e.g. Smith" autocomplete="off" /></div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Department</label>
+        <select id="department">
+          <option value="">Select department</option>
+          <option>Engineering</option><option>Sales</option><option>Marketing</option>
+          <option>Operations</option><option>Finance</option><option>HR</option><option>Other</option>
+        </select>
+      </div>
+      <div class="field"><label>Project / task</label><input type="text" id="project" placeholder="e.g. Client onboarding" autocomplete="off" /></div>
+    </div>
+    <div class="field">
+      <label>Notes (optional)</label>
+      <input type="text" id="notes" placeholder="Any additional context..." maxlength="120" />
+      <div class="note-char" id="noteCount">0 / 120</div>
+    </div>
+    <div id="alertMsg" class="alert alert-error">Please enter at least a first and last name.</div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="clockIn()">Clock in</button>
+    </div>
+  </div>
+
+  <div class="card" id="clockOutCard" style="display:none;">
+    <div class="card-title">Clock out</div>
+    <p style="font-size:14px;color:var(--text-secondary);margin-bottom:1rem;">Ready to finish your session? Your hours will be logged automatically.</p>
+    <div id="warnLong" class="alert alert-warn" style="display:none;">Session is over 12 hours — double-check before clocking out.</div>
+    <div class="btn-row">
+      <button class="btn btn-danger" onclick="clockOut()">Clock out</button>
+      <button class="btn" onclick="cancelSession()" style="max-width:130px;">Cancel session</button>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card"><div class="sc-label">Total sessions</div><div class="sc-val" id="statSessions">0</div></div>
+    <div class="stat-card"><div class="sc-label">Total hours</div><div class="sc-val" id="statHours">0.0</div></div>
+    <div class="stat-card"><div class="sc-label">Employees logged</div><div class="sc-val" id="statPeople">0</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Session log</div>
+    <div class="filter-row">
+      <label>Search</label>
+      <input type="text" id="filterName" placeholder="Filter by name or department..." oninput="renderLog()" />
+    </div>
+    <div id="logContainer"><div class="empty-state">No sessions recorded yet.</div></div>
+    <div class="export-row" id="exportRow" style="display:none;">
+      <button class="btn" style="max-width:160px;font-size:13px;" onclick="exportCSV()">Export as CSV ↓</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let sessions = JSON.parse(localStorage.getItem('ts_sessions') || '[]');
+  let active = JSON.parse(localStorage.getItem('ts_active') || 'null');
+  const pad = n => String(n).padStart(2,'0');
+  const fmtTime = d => `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  const fmtDate = d => d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const fmtDur = ms => { const h=Math.floor(ms/3600000),m=Math.floor((ms%3600000)/60000); return `${h}h ${pad(m)}m`; };
+  const decH = ms => (ms/3600000).toFixed(2);
+
+  function tick() {
+    const now = new Date();
+    document.getElementById('liveClock').textContent = fmtTime(now);
+    document.getElementById('liveDate').textContent = fmtDate(now);
+    if (active) {
+      const ms = now - new Date(active.clockIn);
+      document.getElementById('durationNow').textContent = fmtDur(ms);
+      if (ms > 43200000) document.getElementById('warnLong').style.display = 'block';
+    }
+  }
+  setInterval(tick, 1000); tick();
+
+  document.getElementById('notes').addEventListener('input', function() {
+    document.getElementById('noteCount').textContent = `${this.value.length} / 120`;
+  });
+
+  function setState(on) {
+    document.getElementById('clockInCard').style.display = on ? 'none' : 'block';
+    document.getElementById('clockOutCard').style.display = on ? 'block' : 'none';
+    document.getElementById('sessionInfo').style.display = on ? 'grid' : 'none';
+    const b = document.getElementById('statusBadge');
+    if (on) {
+      b.className = 'status-badge status-active';
+      b.innerHTML = `<span class="dot dot-pulse"></span> Clocked in — ${active.name}`;
+      document.getElementById('sinceTime').textContent = fmtTime(new Date(active.clockIn));
+    } else {
+      b.className = 'status-badge status-idle';
+      b.innerHTML = '<span class="dot"></span> Not clocked in';
+    }
+  }
+
+  function clockIn() {
+    const fn = document.getElementById('firstName').value.trim();
+    const ln = document.getElementById('lastName').value.trim();
+    const err = document.getElementById('alertMsg');
+    if (!fn || !ln) { err.style.display = 'block'; return; }
+    err.style.display = 'none';
+    active = {
+      name: `${fn} ${ln}`, firstName: fn, lastName: ln,
+      department: document.getElementById('department').value || '—',
+      project: document.getElementById('project').value.trim() || '—',
+      notes: document.getElementById('notes').value.trim(),
+      clockIn: new Date().toISOString()
+    };
+    localStorage.setItem('ts_active', JSON.stringify(active));
+    setState(true);
+  }
+
+  function clockOut() {
+    if (!active) return;
+    const out = new Date(), inp = new Date(active.clockIn), ms = out - inp;
+    sessions.unshift({ ...active, clockOut: out.toISOString(), durationFmt: fmtDur(ms), hours: decH(ms), date: inp.toLocaleDateString('en-GB') });
+    localStorage.setItem('ts_sessions', JSON.stringify(sessions));
+    active = null; localStorage.removeItem('ts_active');
+    clearForm(); setState(false); renderLog(); updateStats();
+  }
+
+  function cancelSession() {
+    if (!confirm('Cancel this session? It will not be saved.')) return;
+    active = null; localStorage.removeItem('ts_active');
+    clearForm(); setState(false);
+  }
+
+  function clearForm() {
+    ['firstName','lastName','project','notes'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('department').selectedIndex = 0;
+    document.getElementById('noteCount').textContent = '0 / 120';
+    document.getElementById('warnLong').style.display = 'none';
+  }
+
+  function updateStats() {
+    document.getElementById('statSessions').textContent = sessions.length;
+    document.getElementById('statHours').textContent = sessions.reduce((a,s) => a + parseFloat(s.hours), 0).toFixed(1);
+    document.getElementById('statPeople').textContent = new Set(sessions.map(s => s.name)).size;
+    document.getElementById('exportRow').style.display = sessions.length ? 'block' : 'none';
+  }
+
+  function renderLog() {
+    const q = document.getElementById('filterName').value.toLowerCase();
+    const list = sessions.filter(s => s.name.toLowerCase().includes(q) || (s.department||'').toLowerCase().includes(q));
+    const c = document.getElementById('logContainer');
+    if (!list.length) { c.innerHTML = `<div class="empty-state">${sessions.length ? 'No results match your filter.' : 'No sessions recorded yet.'}</div>`; return; }
+    c.innerHTML = `<table class="log-table"><thead><tr>
+      <th>Employee</th><th>Dept</th><th>Date</th><th>In</th><th>Out</th><th>Hours</th>
+    </tr></thead><tbody>${list.map(s=>`<tr>
+      <td>${s.name}</td><td>${s.department}</td><td>${s.date}</td>
+      <td>${fmtTime(new Date(s.clockIn))}</td><td>${fmtTime(new Date(s.clockOut))}</td>
+      <td><span class="hrs-pill">${s.hours}h</span></td>
+    </tr>`).join('')}</tbody></table>`;
+  }
+
+  function exportCSV() {
+    const rows = [['Name','Department','Project','Date','Clock In','Clock Out','Hours','Notes']];
+    sessions.forEach(s => rows.push([s.name,s.department,s.project,s.date,fmtTime(new Date(s.clockIn)),fmtTime(new Date(s.clockOut)),s.hours,s.notes||'']));
+    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+    a.download = `timesheets_${new Date().toISOString().slice(0,10)}.csv`; a.click();
+  }
+
+  if (active) setState(true);
+  renderLog(); updateStats();
+</script>
+</body>
+</html>
